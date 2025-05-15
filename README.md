@@ -88,7 +88,7 @@
 
 ## 📁 Project Structure
 
-- `contracts/`: Contains the Solidity smart contract (`SolitaireRewardGame.sol`).
+- `contracts/`: Contains the Solidity smart contract (`BlockchainUNO.sol`).
 - `migrations/`: Deployment scripts for Truffle.
 - `build/`: Compiled contract artifacts.
 - `index.html`: Frontend interface.
