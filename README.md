@@ -1,105 +1,101 @@
-UNOBDA 🎴
-UNOBDA is a decentralized application (dApp) that brings the classic UNO card game to the Ethereum blockchain. Players can connect their wallets, join game sessions, and play UNO in a trustless environment, with game logic enforced by smart contracts.
+# UNOBDA 🎴
 
-🚀 Features
-Multiplayer Gameplay: Engage in UNO matches with other players in real-time.
+**UNOBDA** is a decentralized application (dApp) that brings the classic UNO card game to the Ethereum blockchain. Players can connect their wallets, join game sessions, and play UNO in a trustless environment, with game logic enforced by smart contracts.
 
-Smart Contract Enforcement: Game rules and logic are handled by Ethereum smart contracts, ensuring fairness and transparency.
+## 🚀 Features
 
-Wallet Integration: Seamless connection with Ethereum wallets like MetaMask for authentication and transactions.
+- **Multiplayer Gameplay**: Engage in UNO matches with other players in real-time.
+- **Smart Contract Enforcement**: Game rules and logic are handled by Ethereum smart contracts, ensuring fairness and transparency.
+- **Wallet Integration**: Seamless connection with Ethereum wallets like MetaMask for authentication and transactions.
+- **Reward System**: Players can earn rewards based on game outcomes, with winnings distributed automatically via smart contracts.
 
-Reward System: Players can earn rewards based on game outcomes, with winnings distributed automatically via smart contracts.
+## 🛠️ Tech Stack
 
-🛠️ Tech Stack
-Solidity: Smart contracts for game logic.
+- **Solidity**: Smart contracts for game logic.
+- **Web3.js**: Interaction between the frontend and Ethereum blockchain.
+- **HTML/CSS/JavaScript**: Frontend development.
+- **Truffle**: Development framework for Ethereum.
+- **Ganache**: Local Ethereum blockchain for testing.
 
-Web3.js: Interaction between the frontend and Ethereum blockchain.
+## 📦 Installation
 
-HTML/CSS/JavaScript: Frontend development.
+1. **Clone the Repository**:
 
-Truffle: Development framework for Ethereum.
+   ```bash
+   git clone https://github.com/PranshuSaraswat/UNOBDA.git
+   cd UNOBDA
+   ```
 
-Ganache: Local Ethereum blockchain for testing.
+2. **Install Dependencies**:
 
-📦 Installation
-Clone the Repository:
+   ```bash
+   npm install
+   ```
 
-bash
-Copy
-Edit
-git clone https://github.com/PranshuSaraswat/UNOBDA.git
-cd UNOBDA
-Install Dependencies:
+3. **Compile Smart Contracts**:
 
-bash
-Copy
-Edit
-npm install
-Compile Smart Contracts:
+   ```bash
+   truffle compile
+   ```
 
-bash
-Copy
-Edit
-truffle compile
-Deploy Smart Contracts:
+4. **Deploy Smart Contracts**:
 
-Ensure Ganache is running on your machine. Then, deploy the contracts:
+   Ensure Ganache is running on your machine. Then, deploy the contracts:
 
-bash
-Copy
-Edit
-truffle migrate
-🧪 Running the Application
-Start the Development Server:
+   ```bash
+   truffle migrate
+   ```
 
-bash
-Copy
-Edit
-npm start
-Access the Application:
+## 🧪 Running the Application
 
-Open your browser and navigate to http://localhost:8080.
+1. **Start the Development Server**:
 
-Connect Wallet:
+   ```bash
+   npm start
+   ```
 
-Install the MetaMask extension in your browser.
+2. **Access the Application**:
 
-Connect MetaMask to your local Ganache network.
+   Open your browser and navigate to `http://localhost:8080`.
 
-Import an account from Ganache into MetaMask using the private key.
+3. **Connect Wallet**:
 
-🎮 How to Play
-Start a Game:
+   - Install the MetaMask extension in your browser.
+   - Connect MetaMask to your local Ganache network.
+   - Import an account from Ganache into MetaMask using the private key.
 
-Click on "Start Game" and pay the entry fee (minimum 0.01 ETH).
+## 🎮 How to Play
 
-Play UNO:
+1. **Start a Game**:
 
-Follow the on-screen prompts to play your cards according to UNO rules.
+   - Click on "Start Game" and pay the entry fee (minimum 0.01 ETH).
 
-Submit Win:
+2. **Play UNO**:
 
-If you win the game, click on "Submit Win" to claim your reward.
+   - Follow the on-screen prompts to play your cards according to UNO rules.
 
-Quit Game:
+3. **Submit Win**:
 
-If you choose to quit, click on "Quit Game" (note: a penalty applies).
+   - If you win the game, click on "Submit Win" to claim your reward.
 
-Check Game Status:
+4. **Quit Game**:
 
-View your current game status, including whether it's active, won, entry fee, and start time.
+   - If you choose to quit, click on "Quit Game" (note: a penalty applies).
 
-📁 Project Structure
-contracts/: Contains the Solidity smart contract (SolitaireRewardGame.sol).
+5. **Check Game Status**:
 
-migrations/: Deployment scripts for Truffle.
+   - View your current game status, including whether it's active, won, entry fee, and start time.
 
-build/: Compiled contract artifacts.
+## 📁 Project Structure
 
-index.html: Frontend interface.
+- `contracts/`: Contains the Solidity smart contract (`SolitaireRewardGame.sol`).
+- `migrations/`: Deployment scripts for Truffle.
+- `build/`: Compiled contract artifacts.
+- `index.html`: Frontend interface.
+- `app.js`: JavaScript logic for frontend interactions.
+- `package.json`: Project metadata and dependencies.
+- `truffle-config.js`: Truffle configuration file.
 
-app.js: JavaScript logic for frontend interactions.
+## 📝 License
 
-package.json: Project metadata and dependencies.
-
-truffle-config.js: Truffle configuration file.
+This project is licensed under the MIT License.
