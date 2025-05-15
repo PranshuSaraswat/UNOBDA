@@ -1,0 +1,105 @@
+// App variables
+let web3;
+let accounts;
+let solitaireContract;
+let currentAccount;
+let gameActive = false;
+
+// DOM elements
+const connectButton = document.getElementById('connectButton');
+const startGameButton = document.getElementById('startGameButton');
+const forfeitGameButton = document.getElementById('forfeitGameButton');
+const statusDisplay = document.getElementById('status');
+
+// Contract ABI (simplified)
+const contractABI = [
+    // Include only necessary functions and events
+    {
+        "inputs": [],
+        "name": "startGame",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "forfeitGame",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "players",
+        "outputs": [
+            { "internalType": "uint256", "name": "gamesStarted", "type": "uint256" },
+            { "internalType": "bool", "name": "hasActiveGame", "type": "bool" }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    }
+];
+
+// Initialize the applicationYOUR_CONTRACT_ADDRESS
+window.addEventListener('load', async () => {
+    if (window.ethereum) {
+        web3 = new Web3(window.ethereum);
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+        accounts = await web3.eth.getAccounts();
+        currentAccount = accounts[0];
+        solitaireContract = new web3.eth.Contract(contractABI, '0x348b7D9cA53f975070e8c81530FA686513C1df2E');
+        updateUI();
+    } else {
+        alert('Please install MetaMask!');
+    }
+
+    connectButton.addEventListener('click', connectWallet);
+    startGameButton.addEventListener('click', startNewGame);
+    forfeitGameButton.addEventListener('click', forfeitGame);
+});
+
+// Connect wallet function
+async function connectWallet() {
+    try {
+        accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        currentAccount = accounts[0];
+        solitaireContract = new web3.eth.Contract(contractABI, '');
+        updateUI();
+    } catch (error) {
+        console.error('Error connecting to wallet:', error);
+    }
+}
+
+// Update UI based on player status
+async function updateUI() {
+    const playerData = await solitaireContract.methods.players(currentAccount).call();
+    gameActive = playerData.hasActiveGame;
+    forfeitGameButton.disabled = !gameActive;
+    statusDisplay.textContent = gameActive ? 'You have an active game.' : 'No active game.';
+}
+
+// Start a new game
+async function startNewGame() {
+    try {
+        await solitaireContract.methods.startGame().send({ from: currentAccount, value: web3.utils.toWei('0.01', 'ether') });
+        statusDisplay.textContent = 'Game started successfully!';
+        gameActive = true;
+        forfeitGameButton.disabled = false;
+    } catch (error) {
+        console.error('Error starting game:', error);
+        statusDisplay.textContent = 'Error starting game.';
+    }
+}
+
+// Forfeit the current game
+async function forfeitGame() {
+    try {
+        await solitaireContract.methods.forfeitGame().send({ from: currentAccount });
+        statusDisplay.textContent = 'Game forfeited.';
+        gameActive = false;
+        forfeitGameButton.disabled = true;
+    } catch (error) {
+        console.error('Error forfeiting game:', error);
+        statusDisplay.textContent = 'Error forfeiting game.';
+    }
+}

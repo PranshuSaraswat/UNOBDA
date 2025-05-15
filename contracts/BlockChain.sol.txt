@@ -1,0 +1,110 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract SolitaireRewardGame {
+    // Struct to represent a game session
+    struct GameSession {
+        address player;
+        uint256 entryFee;
+        uint256 startTime;
+        bool isActive;
+        bool isWon;
+    }
+
+    // Game parameters
+    uint256 public constant MIN_ENTRY_FEE = 0.01 ether;
+    uint256 public constant WIN_MULTIPLIER = 2;  // Winner gets 2x entry fee
+    uint256 public constant QUIT_PENALTY = 50;   // 50% of entry fee lost when quitting
+
+    // Mapping to store game sessions for each player
+    mapping(address => GameSession) public gameSessions;
+
+    // Events to log game actions
+    event GameStarted(address indexed player, uint256 entryFee);
+    event GameWon(address indexed player, uint256 reward);
+    event GameQuitted(address indexed player, uint256 penalty);
+
+    // Start a new game
+    function startGame() external payable {
+        // Ensure player pays at least the minimum entry fee
+        require(msg.value >= MIN_ENTRY_FEE, "Insufficient game entry fee");
+
+        // Check if player already has an active game
+        require(!gameSessions[msg.sender].isActive, "An active game already exists");
+
+        // Create a new game session
+        gameSessions[msg.sender] = GameSession({
+            player: msg.sender,
+            entryFee: msg.value,
+            startTime: block.timestamp,
+            isActive: true,
+            isWon: false
+        });
+
+        // Emit event for game start
+        emit GameStarted(msg.sender, msg.value);
+    }
+
+    // Submit game result (win)
+    function submitWin() external {
+        GameSession storage session = gameSessions[msg.sender];
+        
+        // Ensure an active game exists
+        require(session.isActive, "No active game to submit");
+
+        // Mark game as won and inactive
+        session.isActive = false;
+        session.isWon = true;
+
+        // Calculate reward (2x entry fee)
+        uint256 reward = session.entryFee * WIN_MULTIPLIER;
+
+        // Send reward to player
+        payable(msg.sender).transfer(reward);
+
+        // Emit win event
+        emit GameWon(msg.sender, reward);
+    }
+
+    // Quit the game
+    function quitGame() external {
+        GameSession storage session = gameSessions[msg.sender];
+        
+        // Ensure an active game exists
+        require(session.isActive, "No active game to quit");
+
+        // Calculate penalty (50% of entry fee)
+        uint256 penalty = (session.entryFee * QUIT_PENALTY) / 100;
+
+        // Mark game as inactive
+        session.isActive = false;
+
+        // Send penalty to contract (can be withdrawn by owner)
+        // Player loses the penalty amount
+        emit GameQuitted(msg.sender, penalty);
+    }
+
+    // Get current game status
+    function getGameStatus() external view returns (
+        bool isActive, 
+        bool isWon, 
+        uint256 entryFee, 
+        uint256 startTime
+    ) {
+        GameSession storage session = gameSessions[msg.sender];
+        return (
+            session.isActive,
+            session.isWon,
+            session.entryFee,
+            session.startTime
+        );
+    }
+
+    // Withdraw contract balance (admin function)
+    function withdraw() external {
+        payable(msg.sender).transfer(address(this).balance);
+    }
+
+    // Fallback function to receive Ether
+    receive() external payable {}
+}
