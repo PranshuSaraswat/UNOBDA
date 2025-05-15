@@ -96,6 +96,3 @@
 - `package.json`: Project metadata and dependencies.
 - `truffle-config.js`: Truffle configuration file.
 
-## 📝 License
-
-This project is licensed under the MIT License.
