@@ -66,7 +66,6 @@ contract UnoRewardGame {
     event PlayerSkipped(uint256 indexed gameId, address indexed player);
     event DirectionChanged(uint256 indexed gameId, uint8 newDirection);
     event PlayerDrawsCard(uint256 indexed gameId, address indexed player);
-    event PlayerDrawsMultiple(uint256 indexed gameId, address indexed player, uint8 cardCount);
     event GameWon(uint256 indexed gameId, address indexed winner, uint256 prize);
     event GameQuit(uint256 indexed gameId, address indexed player, uint256 penalty);
     
@@ -232,21 +231,8 @@ contract UnoRewardGame {
             
             // In a 2-player game, reverse acts like skip
             advanceToNextPlayer(game);
-        } else if (cardType == CardType.DrawTwo) {
-            // Next player must draw 2 cards
-            advanceToNextPlayer(game);
-            address nextPlayer = game.players[game.currentPlayerIndex].playerAddress;
-            emit PlayerDrawsMultiple(game.gameId, nextPlayer, 2);
-            // In UNO, after drawing, the player's turn is skipped
-            advanceToNextPlayer(game);
-        } else if (cardType == CardType.WildDrawFour) {
-            // Next player must draw 4 cards
-            advanceToNextPlayer(game);
-            address nextPlayer = game.players[game.currentPlayerIndex].playerAddress;
-            emit PlayerDrawsMultiple(game.gameId, nextPlayer, 4);
-            // In UNO, after drawing, the player's turn is skipped
-            advanceToNextPlayer(game);
         }
+        // For Draw Two and Wild Draw Four, we trust the client that the next player draws
     }
     
     // Draw a card (simplified - we trust the client that player actually draws)

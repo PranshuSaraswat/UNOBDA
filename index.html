@@ -157,7 +157,7 @@
             </div>
             <div class="action-buttons">
                 <button id="create-game">Create New Game</button>
-                <button id="join-game-btn">Join Game</button>
+                <button id="join-game-btn">Joinn Game</button>
                 <input type="number" id="game-id-input" placeholder="Game ID to join" style="width: 150px;">
             </div>
         </div>
@@ -222,7 +222,7 @@
     <script>
         // Contract ABI - simplified version with only the functions we need
         const contractABI = [
-            {
+          {
       "anonymous": false,
       "inputs": [
         {
@@ -408,6 +408,31 @@
         }
       ],
       "name": "PlayerDrawsCard",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "gameId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "player",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8",
+          "name": "cardCount",
+          "type": "uint8"
+        }
+      ],
+      "name": "PlayerDrawsMultiple",
       "type": "event"
     },
     {
@@ -849,7 +874,7 @@
         ];
 
         // Contract address - this would need to be replaced with your deployed contract address
-        const contractAddress = "0xCD02585B0c5Da4157b12E5a4764135334719b471"; // Replace with actual contract address when deployed
+        const contractAddress = "0xA89DDbD6784D6A69608988A36580eeDd09799c96"; // Replace with actual contract address when deployed
 
         // Helper arrays and objects
         const colorNames = ["Red", "Blue", "Green", "Yellow", "Wild"];
@@ -863,6 +888,7 @@
         let currentAccount;
         let activeGameId = 0;
         let currentGameStatus = {};
+        let lastHandledPenaltyState = null;
         let selectedCard = null;
         let selectedWildColor = 0;
         let playerHand = []; // Simulated hand - in a real app would come from a game server
@@ -1149,7 +1175,7 @@
                 } else {
                     setStatusMessage("Card played successfully!");
                 }
-                
+                lastHandledPenaltyState = null;
                 selectedCard = null;
             } catch (error) {
                 console.error("Error playing selected card:", error);
@@ -1289,19 +1315,65 @@
                 const isPlayerTurn = currentGameStatus.currentPlayerAddress.toLowerCase() === currentAccount.toLowerCase();
                 document.getElementById("draw-card").disabled = !isPlayerTurn || currentGameStatus.isFinished;
                 
-                if (isPlayerTurn && !currentGameStatus.isFinished) {
-                    setStatusMessage("It's your turn!");
-                } else if (currentGameStatus.isFinished) {
-                    // Status already updated above if game is finished
-                } else if (currentGameStatus.playerCount < 2) {
-                    setStatusMessage("Waiting for another player to join...");
-                } else {
-                    setStatusMessage("Waiting for opponent's move...");
-                }
+                // Check if player needs to draw cards due to Draw Two or Wild Draw Four penalty
+               // Replace the current if/else block that checks for penalties with this:
+if (isPlayerTurn && !currentGameStatus.isFinished) {
+    // Create a unique identifier for the current game state
+    const currentPenaltyState = `${activeGameId}-${currentGameStatus.currentPlayerIndex}-${currentGameStatus.currentType}`;
+    
+    if ((currentGameStatus.currentType === 3 || currentGameStatus.currentType === 5) && 
+        lastHandledPenaltyState !== currentPenaltyState) {
+        // Only handle penalty if we haven't handled this exact state before
+        lastHandledPenaltyState = currentPenaltyState;
+        
+        if (currentGameStatus.currentType === 3) { // Draw Two
+            setStatusMessage("Draw Two penalty! Drawing 2 cards...");
+            setTimeout(() => {
+                handleDrawPenalty(2);
+            }, 1000);
+        } else if (currentGameStatus.currentType === 5) { // Wild Draw Four
+            setStatusMessage("Wild Draw Four penalty! Drawing 4 cards...");
+            setTimeout(() => {
+                handleDrawPenalty(4);
+            }, 1000);
+        }
+    } else if (currentGameStatus.currentType !== 3 && currentGameStatus.currentType !== 5) {
+        setStatusMessage("It's your turn!");
+    }
+} else if (currentGameStatus.isFinished) {
+    // Status already updated above if game is finished
+} else if (currentGameStatus.playerCount < 2) {
+    setStatusMessage("Waiting for another player to join...");
+} else {
+    setStatusMessage("Waiting for opponent's move...");
+}
             } catch (error) {
                 console.error("Error refreshing game status:", error);
             }
         }
+        // Handle drawing cards due to penalty
+        async function handleDrawPenalty(cardCount) {
+            try {
+                if (!activeGameId || !contract) return;
+        
+                // First draw the cards to your hand (client-side only)
+                for (let i = 0; i < cardCount; i++) {
+                    const randomCard = generateRandomCard();
+                    playerHand.push(randomCard);
+                }
+                renderHand();
+        
+                // Then execute the drawCard contract function to advance the turn
+                const tx = await contract.drawCard(activeGameId);
+                await tx.wait();
+        
+                await refreshGameStatus();
+                setStatusMessage(`Drew ${cardCount} cards due to penalty. Your turn is skipped.`);
+            } catch (error) {
+                console.error(`Error handling draw ${cardCount} penalty:`, error);
+                setStatusMessage(`Error drawing penalty cards: ${error.message || error}`);
+            }
+        } 
 
         // Update the current card display
         function updateCurrentCardDisplay() {
